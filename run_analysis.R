@@ -43,13 +43,13 @@ test <- cbind(read.table("UCI HAR Dataset/test/subject_test.txt",
 
 combineddataset <- rbind(train, test)
 
+## Fix column names and set subject and activity as factors
+names(dataset) <- tolower(gsub("\\.", "", names(dataset),))
+
 ## Extract only the measurements for means and standard deviations
 dataset <- cbind(combineddataset[,c(1:2)],
                  combineddataset[,grepl("mean", names(combineddataset))],
                  combineddataset[,grepl("std", names(combineddataset))])
-
-## Fix column names and set subject and activity as factors
-names(dataset) <- tolower(gsub("\\.", "", names(dataset),))
 
 ## Convert activity codes to desctriptive labels
 dataset$activity[dataset$activity == 1] <- "walking"
