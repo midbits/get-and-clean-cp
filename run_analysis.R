@@ -42,26 +42,31 @@ test <- cbind(read.table("UCI HAR Dataset/test/subject_test.txt",
                          col.names = features, nrows=3000))
 
 combineddataset <- rbind(train, test)
+rm(test)
+rm(train)
 
 ## Fix column names and set subject and activity as factors
-names(dataset) <- tolower(gsub("\\.", "", names(dataset),))
+names(combineddataset) <- tolower(gsub("\\.", "", names(combineddataset),))
 
 ## Extract only the measurements for means and standard deviations
-dataset <- cbind(combineddataset[,c(1:2)],
-                 combineddataset[,grepl("mean", names(combineddataset))],
-                 combineddataset[,grepl("std", names(combineddataset))])
+combineddataset <- cbind(combineddataset[,c(1:2)],
+                 combineddataset[,grepl("mean|std", names(combineddataset))])
 
 ## Convert activity codes to desctriptive labels
-dataset$activity[dataset$activity == 1] <- "walking"
-dataset$activity[dataset$activity == 2] <- "walkingupstairs"
-dataset$activity[dataset$activity == 3] <- "walkingdownstairs"
-dataset$activity[dataset$activity == 4] <- "sitting"
-dataset$activity[dataset$activity == 5] <- "standing"
-dataset$activity[dataset$activity == 6] <- "laying"
+combineddataset$activity[combineddataset$activity == 1] <- "walking"
+combineddataset$activity[combineddataset$activity == 2] <- "walkingupstairs"
+combineddataset$activity[combineddataset$activity == 3] <- "walkingdownstairs"
+combineddataset$activity[combineddataset$activity == 4] <- "sitting"
+combineddataset$activity[combineddataset$activity == 5] <- "standing"
+combineddataset$activity[combineddataset$activity == 6] <- "laying"
 
-## Add factors where they should be
-dataset$activity <- as.factor(dataset$activity)
-dataset$subject <- as.factor(dataset$subject)
+## Add factors where they should be and fix up some column names
+combineddataset$activity <- as.factor(combineddataset$activity)
+combineddataset$subject <- as.factor(combineddataset$subject)
+names(combineddataset) <- sub("^t", "time", names(combineddataset))
+names(combineddataset) <- sub("^f", "freq", names(combineddataset))
 
 ## Create tidy data set contining means per measurement over subject and activity
-tidy = aggregate(dataset[,3:81], by=list(activity = dataset$activity, subject=dataset$subject), mean)
+tidy <- aggregate(combineddataset[,3:88],
+                  by=list(activity = combineddataset$activity,
+                          subject=combineddataset$subject), mean)
